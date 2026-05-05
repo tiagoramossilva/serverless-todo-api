@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: tasks
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  TodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: todo-api
+      Runtime: python3.9
+      Handler: handler.lambda_handler
+      CodeUri: lambda/
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: tasks
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: ANY
